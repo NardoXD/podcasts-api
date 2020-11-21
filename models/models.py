@@ -8,20 +8,20 @@ podcast_genre = db.Table(
 
 
 class Podcast(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    name = db.Column(db.String(255), nullable=False)
-    kind = db.Column(db.String(50), nullable=False)
-    copyright = db.Column(db.String)
-    releaseDate = db.Column(db.Date, nullable=False)
-    contentAdvisoryRating = db.Column(db.String(50))
-    url = db.Column(db.String(1000), nullable=False)
-    artworkUrl100 = db.Column(db.String(1000), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
+    kind = db.Column(db.String(50))
+    copyright = db.Column(db.String, nullable=True)
+    releaseDate = db.Column(db.String(10))
+    contentAdvisoryRating = db.Column(db.String(50), nullable=True)
+    url = db.Column(db.String(1000))
+    artworkUrl100 = db.Column(db.String(1000))
 
-    artistName = db.Column(db.String(100), nullable=False)
-    artistId = db.Column(db.Integer)
-    artistUrl = db.Column(db.String(1000))
+    artistName = db.Column(db.String(100))
+    artistId = db.Column(db.Integer, nullable=True)
+    artistUrl = db.Column(db.String(1000), nullable=True)
 
-    genres = db.relationship('Genre', secondary=podcast_genre)
+    genres = db.relationship('Genre', secondary=podcast_genre, backref=db.backref('podcasts'))
 
 
 class Genre(db.Model):
