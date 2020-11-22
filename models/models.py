@@ -1,4 +1,6 @@
-from app import db
+from uuid import uuid4
+import datetime
+from app import app, db, bcrypt
 
 podcast_genre = db.Table(
     'podcast_genre',
@@ -30,3 +32,16 @@ class Genre(db.Model):
     url = db.Column(db.String(1000))
 
 
+class User(db.Model):
+    id = db.Column(db.String(255), primary_key=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    registered_on = db.Column(db.DateTime, nullable=False)
+
+    def __init__(self, username, password):
+        self.id = str(uuid4())
+        self.username = username
+        self.password = bcrypt.generate_password_hash(
+            password, app.config.get('BCRYPT_LOG_ROUNDS')
+        ).decode()
+        self.registered_on = datetime.datetime.now()

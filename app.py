@@ -2,6 +2,7 @@ import os
 import json
 from flask import Flask, request
 from database import Config, populate_db
+from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
@@ -9,6 +10,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+bcrypt = Bcrypt(app)
 
 # these imports are here because they must to be imported after the SQLAlchemy
 # and Marshmallow objects
