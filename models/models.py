@@ -1,7 +1,8 @@
 from uuid import uuid4
 import datetime
 import jwt
-from app import app, db, bcrypt
+from database import Config
+from app import db
 
 podcast_genre = db.Table(
     'podcast_genre',
@@ -42,31 +43,28 @@ class User(db.Model):
     def __init__(self, username, password):
         self.id = str(uuid4())
         self.username = username
-        self.password = bcrypt.generate_password_hash(
-            password, app.config.get('BCRYPT_LOG_ROUNDS')
-        ).decode()
+        self.password = password
         self.registered_on = datetime.datetime.now()
 
     @staticmethod
     def encode_auth_token(user_id):
         try:
             payload = {
-                'exp': datetime.datetime.now() + datetime.timedelta(hours=5),
+                'exp': datetime.datetime.now() + datetime.timedelta(minutes=30),
                 'iat': datetime.datetime.now(),
                 'sub': user_id
             }
             return jwt.encode(
                 payload,
-                app.config.get('SECRET__KEY'),
-                algorithm='HS256'
-            )
+                Config.SECRET_KEY
+            ).decode('UTF-8')
         except Exception as e:
             return e
 
     @staticmethod
     def decode_auth_token(auth_token):
         try:
-            payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'))
+            payload = jwt.decode(auth_token, Config.SECRET_KEY)
             return payload['sub']
         except jwt.ExpiredSignatureError:
             return 'Signature expired. Please log in again'

@@ -6,3 +6,4 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'podcasts.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SECRET_KEY = 'podcast_secret_key'

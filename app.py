@@ -2,16 +2,14 @@ import os
 import json
 from flask import Flask, request
 from database import Config, populate_db
-from flask_bcrypt import Bcrypt
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
 app = Flask(__name__)
 app.config.from_object(Config)
-app.config['SECRET_KEY'] = 'podcast_secret_key'
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
-bcrypt = Bcrypt(app)
 
 # these imports are here because they must to be imported after the SQLAlchemy
 # and Marshmallow objects
@@ -40,11 +38,27 @@ def create_user():
     if password is None:
         return {'message': 'password is required'}, 400
 
-    new_user = User(username, password)
+    new_user = User(username, generate_password_hash(password, method='sha256'))
     db.session.add(new_user)
     db.session.commit()
 
     return {'message': 'New user created!'}, 200
+
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    auth = request.authorization
+
+    if not auth or not auth.username or not auth.password:
+        return {'message': 'Could not verify!'}, 401
+
+    user = User.query.filter_by(username=auth.username).first()
+
+    if check_password_hash(user.password, auth.password):
+        token = User.encode_auth_token(user.id)
+        return {'token': token}
+
+    return {'message': 'Could not verify'}, 401
 
 
 @app.route('/api/search', methods=['GET'])
