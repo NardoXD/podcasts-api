@@ -1,13 +1,21 @@
-from uuid import uuid4
+# Python imports
 import datetime
+from uuid import uuid4
+
+# Third-party imports
 import jwt
+
+# Local imports
 from database import Config
 from app import db
 
+# Many to many relationship table
 podcast_genre = db.Table(
     'podcast_genre',
-    db.Column('podcastId', db.Integer, db.ForeignKey('podcast.id'), primary_key=True),
-    db.Column('genreId', db.Integer, db.ForeignKey('genre.genreId'), primary_key=True)
+    db.Column('podcastId', db.Integer, db.ForeignKey('podcast.id'),
+              primary_key=True),
+    db.Column('genreId', db.Integer, db.ForeignKey('genre.genreId'),
+              primary_key=True)
 )
 
 
@@ -48,6 +56,13 @@ class User(db.Model):
 
     @staticmethod
     def encode_auth_token(user_id):
+        """
+
+        :param user_id: user id to create a token
+        :type user_id: str
+        :return: a token generated to validate a user's access
+        :rtype: str
+        """
         try:
             payload = {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(
@@ -63,5 +78,12 @@ class User(db.Model):
 
     @staticmethod
     def decode_auth_token(auth_token):
+        """
+
+        :param auth_token: token received from the request to validate
+        :type auth_token: str
+        :return: the user id that has been validated
+        :rtype: str
+        """
         payload = jwt.decode(auth_token, Config.SECRET_KEY)
         return payload['sub']

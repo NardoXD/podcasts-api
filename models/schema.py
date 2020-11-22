@@ -1,3 +1,4 @@
+# Local imports
 from app import ma
 
 

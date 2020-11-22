@@ -1,19 +1,24 @@
+# Python imports
 import os
 import json
 from functools import wraps
+
+# Third-party imports
 from flask import Flask, request
-from database import Config, populate_db
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from werkzeug.security import generate_password_hash, check_password_hash
+
+# Local imports
+from database import Config, populate_db
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
-# these imports are here because they must to be imported after the SQLAlchemy
-# and Marshmallow objects
+# these local imports are here because they must to be imported after the
+# SQLAlchemy and Marshmallow objects
 from models import Podcast, Genre, User
 from models import GenreSchema, PodcastSchema, PodcastByGenreSchema
 
@@ -24,15 +29,18 @@ podcast_schema = PodcastSchema()
 podcasts_schema = PodcastSchema(many=True)
 podcasts_by_genre_schema = PodcastByGenreSchema()
 
+# Create a file folder if it does not exist
 if 'files' not in os.listdir():
     os.mkdir('files')
 
+# Create a podcasts.db if the database does not exist
 if 'podcasts.db' not in os.listdir('database/'):
     db.create_all()
     db.session.commit()
     populate_db(db, Genre, Podcast)
 
 
+# Decorator to validate token in all the endpoints
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -47,7 +55,7 @@ def token_required(f):
         try:
             user_id = User.decode_auth_token(token)
             current_user = User.query.get(user_id)
-        except Exception as e:
+        except:
             return {'message': 'Token is invalid!'}, 401
 
         return f(current_user, *args, **kwargs)
@@ -63,8 +71,11 @@ def create_user():
         return {'message': 'username is required'}, 400
     if password is None:
         return {'message': 'password is required'}, 400
+    if not isinstance(username, str):
+        return {'message': 'username is not a string'}, 400
 
-    new_user = User(username, generate_password_hash(password, method='sha256'))
+    new_user = User(username,
+                    generate_password_hash(password, method='sha256'))
     db.session.add(new_user)
     db.session.commit()
 
@@ -90,7 +101,11 @@ def login():
 @app.route('/api/search', methods=['GET'])
 @token_required
 def search(current_user):
-    print(current_user)
+    if 'name' not in request.json:
+        return {'message': 'name is required'}, 400
+    if not isinstance(request.json['name'], str):
+        return {'message': 'name is not a string'}, 400
+
     name = request.json['name']
     all_podcasts_by_name = Podcast.query.filter(
         Podcast.name.like(f'%{name}%')
@@ -150,6 +165,7 @@ def group_by_genre(current_user):
 join podcast_genre on podcast_genre.genreId = genre.genreId
 join podcast on podcast.id == podcast_genre.podcastId
 order by genre;"""
+
     results = db.engine.execute(raw_query).fetchall()
 
     podcast_by_genre = dict()
