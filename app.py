@@ -24,6 +24,9 @@ podcast_schema = PodcastSchema()
 podcasts_schema = PodcastSchema(many=True)
 podcasts_by_genre_schema = PodcastByGenreSchema()
 
+if 'files' not in os.listdir():
+    os.mkdir('files')
+
 if 'podcasts.db' not in os.listdir('database/'):
     db.create_all()
     db.session.commit()
