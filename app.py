@@ -41,6 +41,17 @@ def search():
     return podcasts_schema.jsonify(all_podcasts_by_name)
 
 
+@app.route('/api/top-20', methods=['POST'])
+def save_top_20():
+    top_20 = Podcast.query.order_by(Podcast.id).limit(20).all()
+    top_20 = podcasts_schema.dump(top_20)
+    with open('files/top_20.json', 'w') as file:
+        json.dump(top_20, file)
+
+    return {
+        'message': 'Top 20 of podcasts has been written in files/top_20.json'
+    }, 200
+
 
 
 if __name__ == '__main__':
