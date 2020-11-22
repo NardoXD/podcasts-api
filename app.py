@@ -1,5 +1,6 @@
 import os
 import json
+from functools import wraps
 from flask import Flask, request
 from database import Config, populate_db
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -27,6 +28,28 @@ if 'podcasts.db' not in os.listdir('database/'):
     db.create_all()
     db.session.commit()
     populate_db(db, Genre, Podcast)
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+
+        if not token:
+            return {'message': 'Token is missing!'}, 401
+
+        try:
+            user_id = User.decode_auth_token(token)
+            current_user = User.query.get(user_id)
+        except Exception as e:
+            return {'message': 'Token is invalid!'}, 401
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
 
 
 @app.route('/api/create-user', methods=['POST'])
@@ -62,7 +85,9 @@ def login():
 
 
 @app.route('/api/search', methods=['GET'])
-def search():
+@token_required
+def search(current_user):
+    print(current_user)
     name = request.json['name']
     all_podcasts_by_name = Podcast.query.filter(
         Podcast.name.like(f'%{name}%')
@@ -75,31 +100,34 @@ def search():
 
 
 @app.route('/api/top-20', methods=['POST'])
-def save_top_20():
+@token_required
+def save_top_20(current_user):
     top_20 = Podcast.query.order_by(Podcast.id).limit(20).all()
     top_20 = podcasts_schema.dump(top_20)
     with open('files/top_20.json', 'w') as file:
         json.dump(top_20, file)
 
     return {
-        'message': 'Top 20 of podcasts has been written in files/top_20.json'
-    }, 200
+               'message': 'Top 20 of podcasts has been written in files/top_20.json'
+           }, 200
 
 
 @app.route('/api/replace-top-20', methods=['POST'])
-def replace_top_20():
+@token_required
+def replace_top_20(current_user):
     bottom_20 = Podcast.query.order_by(db.desc(Podcast.id)).limit(20).all()
     bottom_20 = podcasts_schema.dump(bottom_20)
     with open('files/top_20.json', 'w') as file:
         json.dump(bottom_20, file)
 
     return {
-        'message': 'Top 20 has been replaced for Bottom 20 in files/top_20.json'
-    }, 200
+               'message': 'Top 20 has been replaced for Bottom 20 in files/top_20.json'
+           }, 200
 
 
 @app.route('/api/<id_>', methods=['DELETE'])
-def delete_podcast(id_):
+@token_required
+def delete_podcast(current_user, id_):
     podcast = Podcast.query.get(id_)
     if podcast is None:
         return {'message': f'Podcast with id {id_} does not exist'}, 404
@@ -108,12 +136,13 @@ def delete_podcast(id_):
     db.session.commit()
 
     return {
-        'message': f'Podcast with id {id_} has been deleted'
-    }, 200
+               'message': f'Podcast with id {id_} has been deleted'
+           }, 200
 
 
 @app.route('/api/group-by-genre', methods=['GET'])
-def group_by_genre():
+@token_required
+def group_by_genre(current_user):
     raw_query = """select genre.name as genre, podcast.id as id from genre
 join podcast_genre on podcast_genre.genreId = genre.genreId
 join podcast on podcast.id == podcast_genre.podcastId

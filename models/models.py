@@ -44,14 +44,14 @@ class User(db.Model):
         self.id = str(uuid4())
         self.username = username
         self.password = password
-        self.registered_on = datetime.datetime.now()
+        self.registered_on = datetime.datetime.utcnow()
 
     @staticmethod
     def encode_auth_token(user_id):
         try:
             payload = {
-                'exp': datetime.datetime.now() + datetime.timedelta(minutes=30),
-                'iat': datetime.datetime.now(),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(
+                    minutes=30),
                 'sub': user_id
             }
             return jwt.encode(
@@ -63,10 +63,5 @@ class User(db.Model):
 
     @staticmethod
     def decode_auth_token(auth_token):
-        try:
-            payload = jwt.decode(auth_token, Config.SECRET_KEY)
-            return payload['sub']
-        except jwt.ExpiredSignatureError:
-            return 'Signature expired. Please log in again'
-        except jwt.InvalidTokenError:
-            return 'Invalid token, Please log in again'
+        payload = jwt.decode(auth_token, Config.SECRET_KEY)
+        return payload['sub']
