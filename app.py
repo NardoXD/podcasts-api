@@ -65,5 +65,19 @@ def replace_top_20():
     }, 200
 
 
+@app.route('/api/<id_>', methods=['DELETE'])
+def delete_podcast(id_):
+    podcast = Podcast.query.get(id_)
+    if podcast is None:
+        return {'message': f'Podcast with id {id_} does not exist'}, 404
+
+    db.session.delete(podcast)
+    db.session.commit()
+
+    return {
+        'message': f'Podcast with id {id_} has been deleted'
+    }, 200
+
+
 if __name__ == '__main__':
     app.run()
