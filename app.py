@@ -8,13 +8,14 @@ from flask_marshmallow import Marshmallow
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.config['SECRET_KEY'] = 'podcast_secret_key'
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 bcrypt = Bcrypt(app)
 
 # these imports are here because they must to be imported after the SQLAlchemy
 # and Marshmallow objects
-from models import Podcast, Genre
+from models import Podcast, Genre, User
 from models import GenreSchema, PodcastSchema, PodcastByGenreSchema
 
 # Schema creation
@@ -28,6 +29,22 @@ if 'podcasts.db' not in os.listdir('database/'):
     db.create_all()
     db.session.commit()
     populate_db(db, Genre, Podcast)
+
+
+@app.route('/api/create-user', methods=['POST'])
+def create_user():
+    username = request.json.get('username', None)
+    password = request.json.get('password', None)
+    if username is None:
+        return {'message': 'username is required'}, 400
+    if password is None:
+        return {'message': 'password is required'}, 400
+
+    new_user = User(username, password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return {'message': 'New user created!'}, 200
 
 
 @app.route('/api/search', methods=['GET'])
