@@ -53,6 +53,17 @@ def save_top_20():
     }, 200
 
 
+@app.route('/api/replace-top-20', methods=['POST'])
+def replace_top_20():
+    bottom_20 = Podcast.query.order_by(db.desc(Podcast.id)).limit(20).all()
+    bottom_20 = podcasts_schema.dump(bottom_20)
+    with open('files/top_20.json', 'w') as file:
+        json.dump(bottom_20, file)
+
+    return {
+        'message': 'Top 20 has been replaced for Bottom 20 in files/top_20.json'
+    }, 200
+
 
 if __name__ == '__main__':
     app.run()
