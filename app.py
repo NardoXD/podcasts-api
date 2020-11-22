@@ -20,7 +20,7 @@ genre_schema = GenreSchema()
 genres_schema = GenreSchema(many=True)
 podcast_schema = PodcastSchema()
 podcasts_schema = PodcastSchema(many=True)
-podcasts_genre_schema = PodcastByGenreSchema(many=True)
+podcasts_by_genre_schema = PodcastByGenreSchema()
 
 if 'podcasts.db' not in os.listdir('database/'):
     db.create_all()
@@ -77,6 +77,27 @@ def delete_podcast(id_):
     return {
         'message': f'Podcast with id {id_} has been deleted'
     }, 200
+
+
+@app.route('/api/group-by-genre', methods=['GET'])
+def group_by_genre():
+    raw_query = """select genre.name as genre, podcast.id as id from genre
+join podcast_genre on podcast_genre.genreId = genre.genreId
+join podcast on podcast.id == podcast_genre.podcastId
+order by genre;"""
+    results = db.engine.execute(raw_query).fetchall()
+
+    podcast_by_genre = dict()
+    for result in results:
+        genre, podcast_id = result
+        if genre not in podcast_by_genre.keys():
+            podcast_by_genre[genre] = list()
+
+        podcast = Podcast.query.get(podcast_id)
+        podcast = podcasts_by_genre_schema.dump(podcast)
+        podcast_by_genre[genre].append(podcast)
+
+    return podcast_by_genre, 200
 
 
 if __name__ == '__main__':
