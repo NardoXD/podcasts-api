@@ -5,8 +5,6 @@ from functools import wraps
 
 # Third-party imports
 from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # Local imports
@@ -14,13 +12,15 @@ from database import Config, populate_db
 
 app = Flask(__name__)
 app.config.from_object(Config)
-db = SQLAlchemy(app)
-ma = Marshmallow(app)
+
 
 # these local imports are here because they must to be imported after the
 # SQLAlchemy and Marshmallow objects
+from extensions import db
+db.init_app(app)
 from models import Podcast, Genre, User
 from models import GenreSchema, PodcastSchema, PodcastByGenreSchema
+
 
 # Schema creation
 genre_schema = GenreSchema()
@@ -35,10 +35,11 @@ if 'files' not in os.listdir():
 
 # Create a podcasts.db if the database does not exist
 if 'podcasts.db' not in os.listdir('database/'):
-    db.create_all()
-    db.session.commit()
-    print("Populating Database...")
-    populate_db(db, Genre, Podcast)
+    with app.app_context():
+        db.create_all()
+        db.session.commit()
+        print("Populating Database...")
+        populate_db(db, Genre, Podcast)
 
 
 # Decorator to validate token in all the endpoints

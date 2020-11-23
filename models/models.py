@@ -7,7 +7,7 @@ import jwt
 
 # Local imports
 from database import Config
-from app import db
+from extensions import db
 
 # Many to many relationship table
 podcast_genre = db.Table(

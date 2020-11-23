@@ -1,5 +1,5 @@
 # Local imports
-from app import ma
+from extensions import ma
 
 
 class GenreSchema(ma.Schema):
