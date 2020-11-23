@@ -57,6 +57,7 @@ IMPORTANT: The token has is valid for 30 minutes.
 
 ## Structure code
 The code is structured like the following image:
+
 ![structure](images_documentation/structure_code.png)
 
 In the root folder (podcast-api) there are two files:
