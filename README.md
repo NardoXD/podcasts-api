@@ -66,6 +66,8 @@ endpoints. This is in charge of manipulating all the requests and as well as
 validating the generated token.
 - `requirements.txt` this contains all the dependencies that are needed for 
 the application to work.
+- `extensions.py` use to avoid a cyclic import in the SQLAlchemy and 
+Marshmallow objects.
 
 In the models folders there are three files: 
 - `__init__.py` to define the models folder as a Python package and thus
