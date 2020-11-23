@@ -53,6 +53,8 @@ In all services do the following:
 - Add a new header called 'x-access-token' with the token value.
 ![use_token](images_documentation/use_token.png)
 
+IMPORTANT: The token has is valid for 30 minutes.
+
 ## Database and Schema creation
 ### Schema
 ![database_schema](images_documentation/database_schema.png)
