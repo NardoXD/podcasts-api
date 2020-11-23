@@ -37,6 +37,7 @@ if 'files' not in os.listdir():
 if 'podcasts.db' not in os.listdir('database/'):
     db.create_all()
     db.session.commit()
+    print("Populating Database...")
     populate_db(db, Genre, Podcast)
 
 
