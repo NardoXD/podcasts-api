@@ -55,6 +55,31 @@ In all services do the following:
 
 IMPORTANT: The token has is valid for 30 minutes.
 
+## Structure code
+The code is structured like the following image:
+![structure](images_documentation/structure_code.png)
+
+In the root folder (podcast-api) there are two files:
+- `app.py` this is the main app and contains all the functions to use on the
+endpoints. This is in charge of manipulating all the requests and as well as
+validating the generated token.
+- `requirements.txt` this contains all the dependencies that are needed for 
+the application to work.
+
+In the models folders there are three files: 
+- `__init__.py` to define the models folder as a Python package and thus
+be able to import the following to files.
+- `models.py` to define the database tables as a classes.
+- `schema.py` to define the schemas to use and to select the fields of each 
+model to return.
+
+In the database folder there are three files:
+- `__init__.py` to define the database folder as a Python package
+- `config.py` to define the app database configuration such as secret key, 
+database location, etc.
+- `database_loader.py` to load the gathered records from the iTunes API and
+save them to the database.
+
 ## Database and Schema creation
 ### Schema
 ![database_schema](images_documentation/database_schema.png)
