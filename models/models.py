@@ -23,7 +23,7 @@ class Podcast(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     kind = db.Column(db.String(50))
-    copyright = db.Column(db.String, nullable=True)
+    copyright = db.Column(db.String(255), nullable=True)
     releaseDate = db.Column(db.String(10))
     contentAdvisoryRating = db.Column(db.String(50), nullable=True)
     url = db.Column(db.String(1000))
