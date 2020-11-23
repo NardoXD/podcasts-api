@@ -2,7 +2,7 @@
 
 ## Setup
 - Open a terminal.
-- If you want you can create a virtual environment.
+- Create a virtual environment (this is optional)
 - Install the dependencies.
 
 ``` shell script
@@ -118,7 +118,7 @@ else return a success message with **Podcast with id ### has been deleted**.
 > duplicates within some of categories
 
 The function `group_by_genre` uses a query to join the three related tables 
-sorted by genre name. After this, this records are inserted in a dict to 
+sorted by genre name. After this, this records are inserted in a dictionary to 
 return the response.
 
 - Use the endpoint `http://localhost:5000/api/group-by-genre` with the GET
