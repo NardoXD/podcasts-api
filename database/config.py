@@ -8,3 +8,5 @@ class Config:
         'sqlite:///' + os.path.join(basedir, 'podcasts.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SECRET_KEY = 'podcast_secret_key'
+
+
